@@ -350,8 +350,20 @@ st.markdown(
 # SESSION STATE
 # ============================================================
 
+# IMPORTANT:
+# A new visitor starts with NO existing candidate.
+#
+# The candidate ID is automatically assigned by the database
+# when the user creates a new candidate profile.
+#
+# Example:
+# First new candidate  -> ID 1
+# Second new candidate -> ID 2
+# Third new candidate  -> ID 3
+# etc.
+
 if "current_candidate_id" not in st.session_state:
-    st.session_state.current_candidate_id = 7
+    st.session_state.current_candidate_id = None
 
 if "recommendations" not in st.session_state:
     st.session_state.recommendations = []
@@ -1226,24 +1238,75 @@ def render_resume_analysis(
 
 def get_dashboard_counts():
 
+    # --------------------------------------------------------
+    # IMPORTANT:
+    # Do NOT show global database totals to a new visitor.
+    #
+    # The dashboard now shows only the currently selected
+    # candidate's saved records.
+    #
+    # If there is no candidate in the current session,
+    # everything starts at zero.
+    # --------------------------------------------------------
+
+    candidate_id = (
+        st.session_state.current_candidate_id
+    )
+
+    if candidate_id is None:
+
+        return (
+            0,
+            0,
+            0,
+            0
+        )
+
     db = SessionLocal()
 
     try:
 
-        candidate_count = (
-            db.query(Candidate).count()
+        candidate_exists = (
+            db.query(Candidate)
+            .filter(
+                Candidate.id == candidate_id
+            )
+            .count()
         )
 
+        if not candidate_exists:
+
+            return (
+                0,
+                0,
+                0,
+                0
+            )
+
+        candidate_count = 1
+
         recommendation_count = (
-            db.query(Recommendation).count()
+            db.query(Recommendation)
+            .filter(
+                Recommendation.candidate_id == candidate_id
+            )
+            .count()
         )
 
         mentor_count = (
-            db.query(MentorRecommendation).count()
+            db.query(MentorRecommendation)
+            .filter(
+                MentorRecommendation.candidate_id == candidate_id
+            )
+            .count()
         )
 
         roadmap_count = (
-            db.query(LearningRoadmap).count()
+            db.query(LearningRoadmap)
+            .filter(
+                LearningRoadmap.candidate_id == candidate_id
+            )
+            .count()
         )
 
         return (
@@ -1259,6 +1322,9 @@ def get_dashboard_counts():
 
 
 def load_candidate_from_database(candidate_id):
+
+    if candidate_id is None:
+        return None
 
     return get_candidate(candidate_id)
 
@@ -1344,7 +1410,7 @@ def dashboard():
         render_metric_card(
             "Candidates",
             candidate_count,
-            "Candidate profiles stored"
+            "Your candidate profile"
         )
 
     with col2:
@@ -1352,7 +1418,7 @@ def dashboard():
         render_metric_card(
             "Recommendations",
             recommendation_count,
-            "AI recommendations generated"
+            "Your AI recommendations"
         )
 
     with col3:
@@ -1360,7 +1426,7 @@ def dashboard():
         render_metric_card(
             "Mentor Matches",
             mentor_count,
-            "Mentor recommendations stored"
+            "Your mentor recommendations"
         )
 
     with col4:
@@ -1368,7 +1434,23 @@ def dashboard():
         render_metric_card(
             "Roadmap Items",
             roadmap_count,
-            "Learning roadmap records"
+            "Your learning roadmap"
+        )
+
+    if (
+        st.session_state.current_candidate_id
+        is None
+    ):
+
+        st.info(
+            "👋 Welcome! Create your candidate profile to begin your personalized AI career analysis."
+        )
+
+    else:
+
+        st.success(
+            f"Active Candidate ID: "
+            f"**{st.session_state.current_candidate_id}**"
         )
 
     st.write("")
@@ -1528,6 +1610,11 @@ def candidate_profile():
         "Create or update a candidate profile and upload a resume for analysis."
     )
 
+    # --------------------------------------------------------
+    # NEW SESSION:
+    # Do not automatically load an existing candidate.
+    # --------------------------------------------------------
+
     candidate_id = st.number_input(
         "Candidate ID",
         min_value=1,
@@ -1535,11 +1622,19 @@ def candidate_profile():
         step=1
     )
 
-    st.session_state.current_candidate_id = candidate_id
+    # Only update the active candidate when an ID has
+    # actually been selected.
+    if candidate_id is not None:
 
-    candidate = get_candidate(
-        candidate_id
-    )
+        st.session_state.current_candidate_id = candidate_id
+
+    candidate = None
+
+    if candidate_id is not None:
+
+        candidate = get_candidate(
+            candidate_id
+        )
 
     if candidate:
 
@@ -1807,6 +1902,10 @@ def candidate_profile():
 
                 if updated_candidate:
 
+                    st.session_state.current_candidate_id = (
+                        updated_candidate.id
+                    )
+
                     reset_generated_results()
 
                     st.success(
@@ -1844,6 +1943,14 @@ def candidate_profile():
 
             else:
 
+                # ------------------------------------------------
+                # IMPORTANT:
+                # Do NOT manually assign an ID here.
+                #
+                # Database auto-increment generates:
+                # 1, 2, 3, 4, 5...
+                # ------------------------------------------------
+
                 new_candidate = create_candidate(
                     name=name.strip(),
                     email=email.strip(),
@@ -1859,6 +1966,8 @@ def candidate_profile():
 
                 if new_candidate:
 
+                    # The database-generated ID becomes the
+                    # current visitor's active candidate.
                     st.session_state.current_candidate_id = (
                         new_candidate.id
                     )
@@ -1889,6 +1998,10 @@ def candidate_profile():
                             resume_score / 100
                         )
 
+                    # Refresh the page so all modules use
+                    # the newly assigned candidate ID.
+                    st.rerun()
+
                 else:
 
                     st.error(
@@ -1899,11 +2012,18 @@ def candidate_profile():
     # RESUME ANALYSIS
     # ========================================================
 
-    analysis_candidate = get_candidate(
-        candidate_id
-    )
+    analysis_candidate = None
 
-    if analysis_candidate and analysis_candidate.resume_text:
+    if candidate_id is not None:
+
+        analysis_candidate = get_candidate(
+            candidate_id
+        )
+
+    if (
+        analysis_candidate
+        and analysis_candidate.resume_text
+    ):
 
         render_resume_analysis(
             analysis_candidate.resume_text,
@@ -1930,6 +2050,14 @@ def internship_recommendations():
         step=1,
         key="recommendation_candidate_id"
     )
+
+    if candidate_id is None:
+
+        st.info(
+            "👤 Create a candidate profile first."
+        )
+
+        return
 
     st.session_state.current_candidate_id = candidate_id
 
@@ -2318,6 +2446,14 @@ def mentor_recommendation():
         key="mentor_candidate_id"
     )
 
+    if candidate_id is None:
+
+        st.info(
+            "👤 Create a candidate profile first."
+        )
+
+        return
+
     st.session_state.current_candidate_id = candidate_id
 
     candidate = get_candidate(
@@ -2584,6 +2720,14 @@ def learning_roadmap():
         key="roadmap_candidate_id"
     )
 
+    if candidate_id is None:
+
+        st.info(
+            "👤 Create a candidate profile first."
+        )
+
+        return
+
     st.session_state.current_candidate_id = candidate_id
 
     candidate = get_candidate(
@@ -2719,15 +2863,6 @@ def learning_roadmap():
 
                 # ====================================================
                 # ROADMAP DATABASE SAVE
-                # ====================================================
-                # save_learning_roadmap requires exactly:
-                #
-                # 1. candidate.id
-                # 2. selected_track
-                # 3. roadmap
-                #
-                # This prevents:
-                # missing 1 required positional argument: 'roadmap'
                 # ====================================================
 
                 save_learning_roadmap(
@@ -2955,6 +3090,14 @@ def ai_explanation():
         step=1,
         key="explanation_candidate_id"
     )
+
+    if candidate_id is None:
+
+        st.info(
+            "👤 Create a candidate profile first."
+        )
+
+        return
 
     st.session_state.current_candidate_id = candidate_id
 
@@ -3464,13 +3607,25 @@ page = st.sidebar.radio(
 
 st.sidebar.divider()
 
-st.sidebar.markdown(
-    f"""
-    **Current Candidate**
+if st.session_state.current_candidate_id is None:
 
-    Candidate ID: **{st.session_state.current_candidate_id}**
-    """
-)
+    st.sidebar.markdown(
+        """
+        **Current Candidate**
+
+        No candidate selected
+        """
+    )
+
+else:
+
+    st.sidebar.markdown(
+        f"""
+        **Current Candidate**
+
+        Candidate ID: **{st.session_state.current_candidate_id}**
+        """
+    )
 
 st.sidebar.divider()
 
