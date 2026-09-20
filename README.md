@@ -8,11 +8,10 @@
 
 ## 🌐 Live Demo
 
-🚀 **Live Streamlit Demo:** Coming soon
+🚀 **Live Streamlit Demo:** [Try the AI Internship Recommendation Engine](https://internship-recommendation-engine-gait58uqmma7pppbq7e7su.streamlit.app/)
 
-🐙 **GitHub Repository:** Coming soon
+🐙 **GitHub Repository:** [View the Source Code](https://github.com/abdullah8090butt-max/internship-recommendation-engine)
 
-> The live demo and GitHub repository links will be added after deployment.
 
 ---
 
