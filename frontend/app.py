@@ -46,7 +46,10 @@ from database.models import (
     LearningRoadmap
 )
 
-from database.database import SessionLocal
+from database.database import (
+    SessionLocal,
+    create_tables
+)
 
 
 # ============================================================
@@ -96,6 +99,22 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+
+# ============================================================
+# DATABASE INITIALIZATION
+# ============================================================
+
+try:
+    create_tables()
+
+except Exception as error:
+
+    st.error(
+        f"Database initialization failed: {error}"
+    )
+
+    st.stop()
 
 
 # ============================================================
@@ -1992,9 +2011,6 @@ def candidate_profile():
     # RESUME ANALYSIS
     # ========================================================
 
-    # Reload candidate after save so the newly uploaded
-    # resume is available for analysis.
-
     analysis_candidate = get_candidate(
         candidate_id
     )
@@ -2045,10 +2061,6 @@ def internship_recommendations():
         f"Candidate: **{candidate.name}** | ID: **{candidate.id}**"
     )
 
-    # --------------------------------------------------------
-    # RESUME INFORMATION
-    # --------------------------------------------------------
-
     if candidate.resume_text:
 
         resume_col1, resume_col2 = st.columns(
@@ -2088,10 +2100,6 @@ def internship_recommendations():
             "📄 No resume text is stored. Recommendations can still "
             "use the candidate profile information."
         )
-
-    # --------------------------------------------------------
-    # GENERATE RECOMMENDATIONS
-    # --------------------------------------------------------
 
     if st.button(
         "🤖 Generate AI Recommendations",
