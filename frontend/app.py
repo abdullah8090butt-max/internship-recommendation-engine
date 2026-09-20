@@ -437,10 +437,6 @@ def calculate_resume_score(resume_text):
 
     score = 0
 
-    # --------------------------------------------------------
-    # 1. Resume content length
-    # --------------------------------------------------------
-
     word_count = len(
         re.findall(
             r"\b\w+\b",
@@ -459,10 +455,6 @@ def calculate_resume_score(resume_text):
 
     elif word_count >= 50:
         score += 5
-
-    # --------------------------------------------------------
-    # 2. Contact information
-    # --------------------------------------------------------
 
     has_email = bool(
         re.search(
@@ -484,10 +476,6 @@ def calculate_resume_score(resume_text):
     if has_email and has_phone:
         score += 5
 
-    # --------------------------------------------------------
-    # 3. Education
-    # --------------------------------------------------------
-
     education_keywords = [
         "education",
         "academic",
@@ -508,10 +496,6 @@ def calculate_resume_score(resume_text):
         for keyword in education_keywords
     ):
         score += 15
-
-    # --------------------------------------------------------
-    # 4. Skills
-    # --------------------------------------------------------
 
     skill_keywords = [
         "skills",
@@ -542,10 +526,6 @@ def calculate_resume_score(resume_text):
     elif skill_matches >= 1:
         score += 5
 
-    # --------------------------------------------------------
-    # 5. Projects
-    # --------------------------------------------------------
-
     project_keywords = [
         "projects",
         "project",
@@ -568,10 +548,6 @@ def calculate_resume_score(resume_text):
     elif project_matches >= 1:
         score += 5
 
-    # --------------------------------------------------------
-    # 6. Certifications
-    # --------------------------------------------------------
-
     certification_keywords = [
         "certification",
         "certifications",
@@ -586,10 +562,6 @@ def calculate_resume_score(resume_text):
         for keyword in certification_keywords
     ):
         score += 10
-
-    # --------------------------------------------------------
-    # 7. Experience / Internship
-    # --------------------------------------------------------
 
     experience_keywords = [
         "experience",
@@ -686,31 +658,17 @@ def extract_resume_skills(resume_text):
     text = resume_text.lower()
 
     skill_patterns = {
-        "Python": [
-            r"\bpython\b"
-        ],
-        "NumPy": [
-            r"\bnumpy\b"
-        ],
-        "Pandas": [
-            r"\bpandas\b"
-        ],
-        "Matplotlib": [
-            r"\bmatplotlib\b"
-        ],
-        "Seaborn": [
-            r"\bseaborn\b"
-        ],
+        "Python": [r"\bpython\b"],
+        "NumPy": [r"\bnumpy\b"],
+        "Pandas": [r"\bpandas\b"],
+        "Matplotlib": [r"\bmatplotlib\b"],
+        "Seaborn": [r"\bseaborn\b"],
         "Scikit-learn": [
             r"\bscikit[- ]learn\b",
             r"\bsklearn\b"
         ],
-        "Machine Learning": [
-            r"\bmachine learning\b"
-        ],
-        "Deep Learning": [
-            r"\bdeep learning\b"
-        ],
+        "Machine Learning": [r"\bmachine learning\b"],
+        "Deep Learning": [r"\bdeep learning\b"],
         "Artificial Intelligence": [
             r"\bartificial intelligence\b",
             r"\bai\b"
@@ -719,76 +677,40 @@ def extract_resume_skills(resume_text):
             r"\bgenerative ai\b",
             r"\bgen ai\b"
         ],
-        "Computer Vision": [
-            r"\bcomputer vision\b"
-        ],
+        "Computer Vision": [r"\bcomputer vision\b"],
         "NLP": [
             r"\bnatural language processing\b",
             r"\bnlp\b"
         ],
-        "Keras": [
-            r"\bkeras\b"
-        ],
-        "TensorFlow": [
-            r"\btensorflow\b"
-        ],
-        "PyTorch": [
-            r"\bpytorch\b"
-        ],
-        "YOLO": [
-            r"\byolo\b"
-        ],
-        "MediaPipe": [
-            r"\bmediapipe\b"
-        ],
-        "SQL": [
-            r"\bsql\b"
-        ],
-        "Git": [
-            r"\bgit\b"
-        ],
-        "GitHub": [
-            r"\bgithub\b"
-        ],
-        "Streamlit": [
-            r"\bstreamlit\b"
-        ],
-        "FastAPI": [
-            r"\bfastapi\b"
-        ],
+        "Keras": [r"\bkeras\b"],
+        "TensorFlow": [r"\btensorflow\b"],
+        "PyTorch": [r"\bpytorch\b"],
+        "YOLO": [r"\byolo\b"],
+        "MediaPipe": [r"\bmediapipe\b"],
+        "SQL": [r"\bsql\b"],
+        "Git": [r"\bgit\b"],
+        "GitHub": [r"\bgithub\b"],
+        "Streamlit": [r"\bstreamlit\b"],
+        "FastAPI": [r"\bfastapi\b"],
         "REST API": [
             r"\brest api\b",
             r"\brestful api\b"
         ],
-        "Langflow": [
-            r"\blangflow\b"
-        ],
+        "Langflow": [r"\blangflow\b"],
         "RAG": [
             r"\brag\b",
             r"\bretrieval augmented generation\b"
         ],
-        "FAISS": [
-            r"\bfaiss\b"
-        ],
-        "Embeddings": [
-            r"\bembeddings?\b"
-        ],
-        "Data Science": [
-            r"\bdata science\b"
-        ],
+        "FAISS": [r"\bfaiss\b"],
+        "Embeddings": [r"\bembeddings?\b"],
+        "Data Science": [r"\bdata science\b"],
         "Data Analysis": [
             r"\bdata analysis\b",
             r"\bdata analytics\b"
         ],
-        "Web Development": [
-            r"\bweb development\b"
-        ],
-        "HTML": [
-            r"\bhtml\b"
-        ],
-        "CSS": [
-            r"\bcss\b"
-        ],
+        "Web Development": [r"\bweb development\b"],
+        "HTML": [r"\bhtml\b"],
+        "CSS": [r"\bcss\b"],
         "JavaScript": [
             r"\bjavascript\b",
             r"\bjs\b"
@@ -963,7 +885,6 @@ def get_resume_insights(
     insights = []
 
     if not resume_text:
-
         return insights
 
     word_count = len(
@@ -1036,10 +957,6 @@ def render_resume_analysis(
         "Matching and missing skills are compared with the candidate profile."
     )
 
-    # --------------------------------------------------------
-    # Extract resume skills
-    # --------------------------------------------------------
-
     resume_skills = extract_resume_skills(
         resume_text
     )
@@ -1058,10 +975,6 @@ def render_resume_analysis(
         resume_skills,
         candidate_skills
     )
-
-    # --------------------------------------------------------
-    # Skill metrics
-    # --------------------------------------------------------
 
     metric_col1, metric_col2, metric_col3 = st.columns(3)
 
@@ -1085,10 +998,6 @@ def render_resume_analysis(
             "Profile Skills Not Found",
             len(missing_from_resume)
         )
-
-    # --------------------------------------------------------
-    # Detected skills
-    # --------------------------------------------------------
 
     st.markdown(
         "### 🔎 Skills Detected From Resume"
@@ -1124,10 +1033,6 @@ def render_resume_analysis(
             "No recognized technical skills were detected."
         )
 
-    # --------------------------------------------------------
-    # Matching skills
-    # --------------------------------------------------------
-
     st.markdown(
         "### 🎯 Matching Skills"
     )
@@ -1147,10 +1052,6 @@ def render_resume_analysis(
             "the resume and candidate profile."
         )
 
-    # --------------------------------------------------------
-    # Skills missing from resume
-    # --------------------------------------------------------
-
     st.markdown(
         "### ⚠️ Skills From Profile Not Detected In Resume"
     )
@@ -1168,10 +1069,6 @@ def render_resume_analysis(
         st.success(
             "All candidate-profile skills were detected in the resume."
         )
-
-    # --------------------------------------------------------
-    # Resume information
-    # --------------------------------------------------------
 
     st.markdown(
         "### 📋 Resume Information Detected"
@@ -1210,10 +1107,6 @@ def render_resume_analysis(
         st.info(
             "No standard resume sections were detected."
         )
-
-    # --------------------------------------------------------
-    # Suitable internship tracks
-    # --------------------------------------------------------
 
     st.markdown(
         "### 💼 Suitable Internship Tracks"
@@ -1306,10 +1199,6 @@ def render_resume_analysis(
             "Generate AI internship recommendations to identify "
             "suitable internship tracks and track-specific missing skills."
         )
-
-    # --------------------------------------------------------
-    # Resume insights
-    # --------------------------------------------------------
 
     st.markdown(
         "### 💡 Resume Insights"
@@ -1879,7 +1768,6 @@ def candidate_profile():
                 if item.strip()
             ]
 
-            # Preserve existing resume unless a new PDF is uploaded.
             resume_text = (
                 candidate.resume_text
                 if candidate
@@ -2829,8 +2717,22 @@ def learning_roadmap():
                     roadmap
                 )
 
+                # ====================================================
+                # ROADMAP DATABASE SAVE
+                # ====================================================
+                # save_learning_roadmap requires exactly:
+                #
+                # 1. candidate.id
+                # 2. selected_track
+                # 3. roadmap
+                #
+                # This prevents:
+                # missing 1 required positional argument: 'roadmap'
+                # ====================================================
+
                 save_learning_roadmap(
                     candidate.id,
+                    selected_track,
                     roadmap
                 )
 
@@ -3197,10 +3099,6 @@ def ai_explanation():
 
     st.divider()
 
-    # ========================================================
-    # TRACK EXPLANATION
-    # ========================================================
-
     track_explanation = (
         explain_track_recommendation(
             track_name,
@@ -3239,10 +3137,6 @@ def ai_explanation():
         )
     )
 
-    # ========================================================
-    # STRENGTHS
-    # ========================================================
-
     strengths = analyze_strengths(
         matched_skills,
         candidate.projects or [],
@@ -3250,18 +3144,10 @@ def ai_explanation():
         candidate.career_interests or []
     )
 
-    # ========================================================
-    # WEAKNESSES
-    # ========================================================
-
     weaknesses = analyze_weaknesses(
         missing_skills,
         track_name
     )
-
-    # ========================================================
-    # SKILL GAP EXPLANATION
-    # ========================================================
 
     skill_gap_explanation = (
         create_skill_gap_explanation(
@@ -3269,10 +3155,6 @@ def ai_explanation():
             track_name
         )
     )
-
-    # ========================================================
-    # ROADMAP
-    # ========================================================
 
     roadmap = (
         st.session_state.learning_roadmap
@@ -3297,10 +3179,6 @@ def ai_explanation():
             "summary",
             ""
         )
-
-    # ========================================================
-    # MENTOR EXPLANATION
-    # ========================================================
 
     saved_mentors = (
         get_saved_mentor_recommendations(
@@ -3374,10 +3252,6 @@ def ai_explanation():
             )
         }
 
-    # ========================================================
-    # FINAL EXPLANATION
-    # ========================================================
-
     final_explanation = (
         generate_final_explanation(
             track_explanation,
@@ -3415,10 +3289,6 @@ def ai_explanation():
         )
 
     st.divider()
-
-    # ========================================================
-    # RECOMMENDATION FACTORS
-    # ========================================================
 
     st.subheader(
         "📊 Recommendation Factors"
